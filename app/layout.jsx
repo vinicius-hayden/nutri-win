@@ -1,8 +1,16 @@
-import { Manrope } from 'next/font/google'
+import { Archivo, Archivo_Black } from 'next/font/google'
 import './globals.css'
 
-const manrope = Manrope({
+const archivo = Archivo({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+})
+
+const archivoBlack = Archivo_Black({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-display',
 })
 
 export const metadata = {
@@ -13,7 +21,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={manrope.className}>{children}</body>
+      <body className={`${archivo.variable} ${archivoBlack.variable}`}>{children}</body>
     </html>
   )
 }

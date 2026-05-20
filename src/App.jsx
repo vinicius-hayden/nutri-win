@@ -1,291 +1,808 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import {
-  ArrowRight,
-  BadgeCheck,
-  Leaf,
-  LineChart,
-  Salad,
-  Sparkles,
-  Sprout,
-  Users,
-} from 'lucide-react'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
+import SiteNav from './components/SiteNav'
+import { Wheat, Sparkles, Users } from 'lucide-react'
 
-const features = [
+const sdgCards = [
   {
-    title: 'Protein-first nutrition',
-    description:
-      'A balanced blend of plant protein, fiber, and micronutrients designed for everyday energy without the crash.',
-    icon: Salad,
+    title: 'Zero Hunger',
+    description: 'Encouraging nutrition education, supporting sustainable food production, and improving food security.',
   },
   {
-    title: 'Built for real routines',
-    description:
-      'Fast to prep, easy to repeat, and adaptable for work lunches, family dinners, and high-volume food programs.',
-    icon: Users,
+    title: 'Good Health and Well-being',
+    description: 'Promoting access to nutritious food so communities can improve health outcomes with dignity.',
   },
   {
-    title: 'Measured climate upside',
-    description:
-      'Each serving is formulated to lower environmental load compared to conventional animal-heavy alternatives.',
-    icon: Leaf,
-  },
-  {
-    title: 'Brand-ready storytelling',
-    description:
-      'Nutri-Win gives teams a nutrition product with a clear impact narrative consumers can understand in seconds.',
-    icon: LineChart,
+    title: 'Decent Work & Economic Growth',
+    description: 'Creating employment opportunities through local agriculture and stronger community supply chains.',
   },
 ]
 
-const storyPoints = [
-  'Created for people who want better nutrition without giving up convenience or taste.',
-  'Designed to help modern brands serve a smarter plate with a lower footprint.',
-  'Grounded in practical ingredients, clear benefits, and a story people want to join.',
+const dropdownShowcase = [
+  {
+    title: 'Our Story',
+    href: '/our-story',
+    description: 'How Nutri-Win grew from local nutrition work into a movement.',
+    image: '/imgs/Nutri-Win_Impact.JPG',
+    badge: 'Journey',
+  },
+  {
+    title: 'Our Mission',
+    href: '/our-mission',
+    description: 'The purpose guiding every formula, partnership, and community action.',
+    image: '/imgs/Nutri-Win_Mission.jpg',
+    badge: 'Purpose',
+  },
+  {
+    title: 'Our Farmers',
+    href: '/our-farmers',
+    description: 'Meet the growers and food-system partners powering impact.',
+    image: '/imgs/cornfield.jpg',
+    badge: 'People',
+  },
+  {
+    title: 'The Founder',
+    href: '/founder',
+    description: 'The voice and vision behind Nutri-Win’s long-term direction.',
+    image: '/imgs/mother_heart.png',
+    badge: 'Vision',
+  },
 ]
 
-const stats = [
-  { value: '18g', label: 'plant protein per serving' },
-  { value: '7g', label: 'fiber to support fullness' },
-  { value: '42%', label: 'lower estimated food emissions' },
+const recipes = [
+  {
+    title: 'Nutri Breakfast Bowl',
+    image: '/imgs/Nutri-Win_Breakfast.jpeg',
+    tag: 'morningfuel',
+    views: '48.2K',
+    likes: '3.8K',
+    duration: '0:26',
+  },
+  {
+    title: 'Banana Bread',
+    image: '/imgs/banana_bread.jpg',
+    tag: 'comfortbake',
+    views: '61.4K',
+    likes: '4.7K',
+    duration: '0:31',
+  },
+  {
+    title: 'Protein Shake',
+    image: '/imgs/blueberry_muffin.jpg',
+    tag: 'quickblend',
+    views: '39.9K',
+    likes: '2.9K',
+    duration: '0:19',
+  },
+]
+
+const fanReviews = [
+  {
+    quote:
+      '"Nutri-Win made it easier for my family to stay consistent with better meals. You can feel the difference in energy, and the product is simple to use every day."',
+    name: 'Michael D.',
+    role: 'Verified Customer',
+    image: '/imgs/michael.png',
+  },
+  {
+    quote:
+      '"I am a 72 years old grandmother with Diabetes, which has limited my choice of foods. Over the past three years, I have depended on Nutri-Win for my major food intake. Thank you for making it regularly available to me."',
+    name: 'Mrs. Philomena Oforka',
+    role: 'Happy Customer',
+    image: '/imgs/grandma_review.png',
+  },
 ]
 
 function App() {
-  const [servingsPerWeek, setServingsPerWeek] = useState(24)
+  const [activeQuote, setActiveQuote] = useState(0)
+  const activeReview = fanReviews[activeQuote]
+  const productSectionRef = useRef(null)
+  const hasLockedProductRef = useRef(false)
+  const isScrollAnimatingRef = useRef(false)
+  const whyRef = useRef(null)
+  const whyPanelRef = useRef(null)
+  const whyItem1Ref = useRef(null)
+  const whyItem2Ref = useRef(null)
+  const whyItem3Ref = useRef(null)
 
-  const impact = useMemo(() => {
-    const yearlyServings = servingsPerWeek * 52
-    return {
-      meals: yearlyServings.toLocaleString(),
-      co2: Math.round(yearlyServings * 1.7).toLocaleString(),
-      water: Math.round(yearlyServings * 120).toLocaleString(),
-      protein: Math.round(yearlyServings * 18).toLocaleString(),
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveQuote((prev) => (prev + 1) % fanReviews.length)
+    }, 5000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const titles = document.querySelectorAll('[data-title-reveal]')
+    if (!titles.length) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      titles.forEach((title) => title.classList.add('is-visible'))
+      return
     }
-  }, [servingsPerWeek])
+
+    const observer = new IntersectionObserver(
+      (entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          entry.target.classList.add('is-visible')
+          currentObserver.unobserve(entry.target)
+        })
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -8% 0px',
+      }
+    )
+
+    titles.forEach((title) => observer.observe(title))
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) return
+
+    let rafId = null
+
+    const animateTo = (targetY, duration = 1000) => {
+      const startY = window.scrollY
+      const distance = targetY - startY
+      if (Math.abs(distance) < 1) return
+
+      isScrollAnimatingRef.current = true
+      const startTime = performance.now()
+
+      const tick = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        window.scrollTo(0, startY + distance * eased)
+
+        if (progress < 1) {
+          rafId = requestAnimationFrame(tick)
+          return
+        }
+
+        isScrollAnimatingRef.current = false
+      }
+
+      rafId = requestAnimationFrame(tick)
+    }
+
+    const onWheel = (event) => {
+      const productSection = productSectionRef.current
+      if (!productSection) return
+
+      if (isScrollAnimatingRef.current) {
+        event.preventDefault()
+        return
+      }
+
+      const productTop = productSection.offsetTop
+      const viewportBottom = window.scrollY + window.innerHeight
+      const enteringProductFromHero = event.deltaY > 0 && viewportBottom >= productTop && window.scrollY < productTop
+
+      // First downward interaction locks fully onto product before continuing.
+      if (!hasLockedProductRef.current && enteringProductFromHero) {
+        event.preventDefault()
+        hasLockedProductRef.current = true
+        animateTo(productTop, 1000)
+        return
+      }
+
+      // After product lock, control scroll speed.
+      if (window.scrollY >= productTop - 2) {
+        event.preventDefault()
+        window.scrollBy({
+          top: event.deltaY * 1.1,
+          behavior: 'auto',
+        })
+      }
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+      window.removeEventListener('wheel', onWheel)
+    }
+  }, [])
+
+  useEffect(() => {
+    const section = whyRef.current
+    const panel = whyPanelRef.current
+    const items = [whyItem1Ref.current, whyItem2Ref.current, whyItem3Ref.current]
+    if (!section || !panel || items.some((i) => !i)) return
+
+    const ranges = [[0, 0.3], [0.25, 0.6], [0.5, 0.85]]
+    let rafId = null
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+    }
+
+    function update() {
+      const vh = window.innerHeight
+      const sectionTop = section.offsetTop
+      const sectionH = section.offsetHeight
+      const scrollY = window.scrollY
+      const total = sectionH - vh
+      const scrolled = scrollY - sectionTop
+
+      // JS-sticky: avoid relying on CSS sticky which is broken by overflow-x:hidden parent
+      if (scrollY < sectionTop) {
+        panel.style.position = 'absolute'
+        panel.style.top = '0'
+        panel.style.bottom = 'auto'
+        panel.style.left = '0'
+        panel.style.right = '0'
+      } else if (scrollY >= sectionTop + total) {
+        panel.style.position = 'absolute'
+        panel.style.top = 'auto'
+        panel.style.bottom = '0'
+        panel.style.left = '0'
+        panel.style.right = '0'
+      } else {
+        panel.style.position = 'fixed'
+        panel.style.top = '0'
+        panel.style.bottom = 'auto'
+        panel.style.left = '0'
+        panel.style.right = '0'
+      }
+
+      const progress = Math.max(0, Math.min(1, scrolled / total))
+      items.forEach((el, i) => {
+        const [start, end] = ranges[i]
+        const raw = Math.max(0, Math.min(1, (progress - start) / (end - start)))
+        const p = easeInOut(raw)
+        el.style.transform = `translateY(${(1 - p) * 90}px)`
+        el.style.opacity = p
+      })
+      rafId = null
+    }
+
+    function onScroll() {
+      if (!rafId) rafId = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
+
+  const showPrevQuote = () => {
+    setActiveQuote((prev) => (prev - 1 + fanReviews.length) % fanReviews.length)
+  }
+
+  const showNextQuote = () => {
+    setActiveQuote((prev) => (prev + 1) % fanReviews.length)
+  }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(244,196,120,0.38),_transparent_32%),linear-gradient(180deg,_#fffaf0_0%,_#f4f7ef_42%,_#eef5e8_100%)] text-stone-900">
-      <div className="mx-auto max-w-7xl px-6 pb-16 pt-6 lg:px-10">
-        <header className="mb-10 flex items-center justify-between rounded-full border border-white/70 bg-white/70 px-5 py-3 shadow-[0_10px_30px_rgba(71,85,55,0.08)] backdrop-blur">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-900/20">
-              <Sprout className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium uppercase tracking-[0.28em] text-emerald-700">Nutri-Win</p>
-              <p className="text-xs text-stone-500">Nutrition that wins on health and impact</p>
+    <div className="w-full overflow-x-hidden bg-white text-neutral-950">
+      <section className="snap-start relative h-[85svh] overflow-hidden bg-[#101010] text-white">
+        <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(0,0,0,0.28),rgba(0,0,0,0.12)),radial-gradient(circle_at_80%_20%,rgba(76,140,81,0.18),transparent_50%)]" />
+        <div className="relative flex h-full w-full flex-col">
+          <SiteNav theme="dark" />
+          <div className="relative h-full w-full overflow-hidden bg-black">
+            <iframe
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              src="https://www.youtube.com/embed/BnBvlz8EaZ0?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&rel=0"
+              title="Nutri-Win brand video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+            <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full border border-white/35 bg-black/35 px-4 py-2 backdrop-blur-sm">
+              <p className="display-face text-[10px] tracking-[0.2em] text-[#d8f5dc] sm:text-xs">Scroll For More ↓</p>
             </div>
           </div>
-          <nav className="hidden items-center gap-8 text-sm text-stone-600 md:flex">
-            <a href="#features" className="transition hover:text-emerald-700">Features</a>
-            <a href="#impact" className="transition hover:text-emerald-700">Impact</a>
-            <a href="#story" className="transition hover:text-emerald-700">Story</a>
-          </nav>
-        </header>
+        </div>
+      </section>
 
-        <main className="space-y-10">
-          <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[2rem] border border-white/60 bg-white/75 p-8 shadow-[0_24px_80px_rgba(74,93,61,0.12)] backdrop-blur lg:p-12">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-800">
-                <Sparkles className="h-4 w-4" />
-                Modern nutrition for brands, teams, and families
-              </div>
-              <h1 className="max-w-xl text-5xl font-semibold tracking-tight text-stone-900 sm:text-6xl">
-                A cleaner way to feed ambition.
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-600">
-                Nutri-Win is a startup-style nutrition product built to turn better ingredients into a stronger daily habit.
-                High protein, real satisfaction, and a measurable footprint advantage in one simple format.
-              </p>
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                <a
-                  href="#impact"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+      <main>
+        <section ref={productSectionRef} className="snap-section relative w-full">
+          <div className="grid min-h-screen gap-0 md:grid-cols-2">
+            <div className="min-h-screen border-r border-[#2f2f2f] bg-[#141414] text-white">
+              <div className="flex min-h-screen flex-col justify-start px-7 pt-16 pb-10 sm:px-10 sm:pt-20 lg:px-12 lg:pt-24">
+                <p className="display-face text-sm tracking-[0.18em] text-[#a5d8aa]">Nutrient-Rich Indigenous Foods</p>
+                <h2
+                  data-title-reveal
+                  className="title-reveal display-face mt-4 max-w-xl text-5xl leading-[0.9] sm:text-6xl lg:text-7xl"
                 >
-                  Explore impact
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-                <a
-                  href="#story"
-                  className="inline-flex items-center justify-center rounded-full border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-stone-700 transition hover:border-emerald-200 hover:text-emerald-800"
-                >
-                  Read the story
-                </a>
-              </div>
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="rounded-3xl bg-stone-50 px-5 py-4">
-                    <p className="text-3xl font-semibold text-stone-900">{stat.value}</p>
-                    <p className="mt-2 text-sm leading-6 text-stone-500">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  Simple nutrition that works.
+                </h2>
+                <p className="mt-5 max-w-xl text-base leading-8 text-neutral-300 sm:text-lg">
+                  Nutri-Win is built for consistent daily use, with indigenous ingredients and dependable nutrition support for families and communities.
+                </p>
 
-            <div className="grid gap-6">
-              <div className="rounded-[2rem] bg-[linear-gradient(135deg,_#27543e_0%,_#3d7a53_55%,_#e0a34b_100%)] p-8 text-white shadow-[0_24px_80px_rgba(48,78,57,0.2)]">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm uppercase tracking-[0.28em] text-emerald-100/80">What makes it different</p>
-                  <BadgeCheck className="h-5 w-5 text-amber-200" />
-                </div>
-                <p className="mt-8 text-3xl font-semibold leading-tight">
-                  Startup-speed nutrition with a food-system point of view.
-                </p>
-                <p className="mt-4 text-sm leading-7 text-emerald-50/80">
-                  Nutri-Win is positioned for modern consumers who want products that do more than list ingredients.
-                  It connects taste, performance, and sustainability in a single story.
-                </p>
-              </div>
-              <div className="rounded-[2rem] border border-emerald-100 bg-[#f9f3e8] p-8 shadow-[0_20px_60px_rgba(147,113,52,0.12)]">
-                <div className="flex items-center gap-3 text-amber-700">
-                  <div className="rounded-2xl bg-white p-3 shadow-sm">
-                    <Salad className="h-5 w-5" />
-                  </div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.25em]">Daily experience</p>
-                </div>
-                <p className="mt-6 text-2xl font-semibold text-stone-900">
-                  Familiar enough to adopt fast, different enough to stand out.
-                </p>
-                <p className="mt-4 text-sm leading-7 text-stone-600">
-                  Rounded flavors, satisfying texture, and ingredient choices that feel warm, natural, and credible.
-                </p>
-              </div>
-            </div>
-          </section>
+                <ul className="mt-6 space-y-3 text-base text-neutral-200">
+                  <li className="flex items-start gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-[#8ec892]" />
+                    Easy to prepare and easy to adopt.
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-[#8ec892]" />
+                    Rooted in local, familiar food systems.
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-[#8ec892]" />
+                    Backed by long-term research and development.
+                  </li>
+                </ul>
 
-          <section id="features" className="rounded-[2rem] border border-white/60 bg-white/70 p-8 shadow-[0_24px_80px_rgba(74,93,61,0.1)] backdrop-blur lg:p-10">
-            <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">Features</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">
-                Built to tell a clearer nutrition story.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-stone-600">
-                From product formulation to brand positioning, every part of Nutri-Win is shaped to feel simple, useful, and future-facing.
-              </p>
-            </div>
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {features.map((feature) => {
-                const Icon = feature.icon
-
-                return (
-                  <article key={feature.title} className="rounded-[1.75rem] border border-stone-100 bg-stone-50 p-6 transition hover:-translate-y-1 hover:bg-white hover:shadow-xl">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
-                      <Icon className="h-5 w-5" />
+                {/* Hero stat — Protein */}
+                <div data-title-reveal className="card-reveal mt-8 flex justify-start" style={{ transitionDelay: '80ms' }}>
+                  <div className="relative h-52 w-52">
+                    <svg
+                      viewBox="0 0 200 200"
+                      className="absolute inset-0 h-full w-full"
+                      style={{ animation: 'spinBadge 25s linear infinite' }}
+                    >
+                      <polygon points="100,15 117,48 150,31 144,68 181,74 155,100 181,126 144,132 150,169 117,152 100,185 83,152 50,169 56,132 19,126 45,100 19,74 56,68 50,31 83,48" fill="#7fbc83" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <p className="display-face normal-case text-4xl text-white font-black leading-none">27g</p>
+                      <p className="text-sm font-black uppercase tracking-widest text-white/95 -mt-1">Protein</p>
                     </div>
-                    <h3 className="mt-5 text-xl font-semibold text-stone-900">{feature.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-stone-600">{feature.description}</p>
-                  </article>
-                )
-              })}
-            </div>
-          </section>
-
-          <section id="impact" className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-[2rem] bg-[#214b39] p-8 text-white shadow-[0_24px_80px_rgba(48,78,57,0.22)] lg:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-100/75">Impact calculator</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Show the upside in servings, not slogans.
-              </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-emerald-50/80">
-                Estimate how many meals, grams of protein, and environmental savings Nutri-Win can deliver over one year.
-              </p>
-              <div className="mt-10 rounded-[1.75rem] bg-white/10 p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm text-emerald-50/70">Servings per week</p>
-                    <p className="mt-2 text-4xl font-semibold">{servingsPerWeek}</p>
-                  </div>
-                  <div className="rounded-full bg-amber-300 px-4 py-2 text-sm font-semibold text-amber-950">
-                    Live estimate
                   </div>
                 </div>
-                <input
-                  type="range"
-                  min="4"
-                  max="120"
-                  step="2"
-                  value={servingsPerWeek}
-                  onChange={(event) => setServingsPerWeek(Number(event.target.value))}
-                  className="mt-8 h-2 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-amber-300"
+
+                {/* Supporting stats — chips */}
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {[
+                    { value: '14g', label: 'Fiber' },
+                    { value: '0g',  label: 'Sugar' },
+                    { value: '12',  label: 'Vitamins' },
+                  ].map(({ value, label }, i) => (
+                    <div
+                      key={label}
+                      data-title-reveal
+                      className="card-reveal flex items-center gap-2 rounded-full bg-[#2d5c31] px-5 py-2.5"
+                      style={{ transitionDelay: `${180 + i * 80}ms` }}
+                    >
+                      <span className="display-face normal-case text-lg font-black leading-none text-white">{value}</span>
+                      <span className="text-xs uppercase tracking-widest text-white/70">{label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href="/our-farmers"
+                    className="inline-flex w-52 items-center justify-center rounded-sm border border-[#7fbc83]/40 py-4 text-[#a5d8aa] transition hover:border-[#7fbc83] hover:text-white"
+                  >
+                    <span className="display-face tracking-widest uppercase text-xs">See how it&apos;s made</span>
+                  </a>
+                  <a
+                    href="#"
+                    className="inline-flex w-52 items-center justify-center rounded-sm border border-white/15 py-4 text-white/60 transition hover:border-white/40 hover:text-white"
+                  >
+                    <span className="display-face tracking-widest uppercase text-xs">Join Us</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="min-h-screen bg-[#f4f6f2]">
+              <div className="relative min-h-screen overflow-hidden">
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(140deg,rgba(18,23,18,0.2),rgba(18,23,18,0.04)),url('/imgs/Nutri-Win_Product(1).jpg')",
+                  }}
                 />
-                <div className="mt-4 flex justify-between text-xs uppercase tracking-[0.22em] text-emerald-50/60">
-                  <span>4</span>
-                  <span>120</span>
+                {/* Vegan seal */}
+                <div className="absolute bottom-8 right-8 flex h-24 w-24 flex-col items-center justify-center rounded-full border-2 border-[#7fbc83] bg-[#1a3a1e] shadow-lg">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6 text-[#7fbc83]" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3C9 7 4 8 4 13a8 8 0 0 0 16 0c0-5-5-6-8-10Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18" />
+                  </svg>
+                  <p className="display-face mt-1 text-[10px] leading-tight tracking-widest text-white">100%</p>
+                  <p className="display-face text-[10px] leading-tight tracking-widest text-[#7fbc83]">VEGAN</p>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="rounded-[2rem] border border-white/60 bg-white/80 p-8 shadow-[0_24px_80px_rgba(74,93,61,0.12)] backdrop-blur lg:p-10">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[1.5rem] bg-stone-50 p-6">
-                  <p className="text-sm uppercase tracking-[0.24em] text-stone-500">Yearly meals</p>
-                  <p className="mt-4 text-4xl font-semibold text-stone-900">{impact.meals}</p>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">Estimated servings delivered in one year.</p>
-                </div>
-                <div className="rounded-[1.5rem] bg-stone-50 p-6">
-                  <p className="text-sm uppercase tracking-[0.24em] text-stone-500">Protein delivered</p>
-                  <p className="mt-4 text-4xl font-semibold text-stone-900">{impact.protein}g</p>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">Total grams of plant protein supplied.</p>
-                </div>
-                <div className="rounded-[1.5rem] bg-emerald-50 p-6">
-                  <p className="text-sm uppercase tracking-[0.24em] text-emerald-700">CO2e saved</p>
-                  <p className="mt-4 text-4xl font-semibold text-emerald-900">{impact.co2} kg</p>
-                  <p className="mt-3 text-sm leading-7 text-emerald-800/80">Estimated emissions avoided versus heavier conventional meals.</p>
-                </div>
-                <div className="rounded-[1.5rem] bg-amber-50 p-6">
-                  <p className="text-sm uppercase tracking-[0.24em] text-amber-700">Water saved</p>
-                  <p className="mt-4 text-4xl font-semibold text-amber-900">{impact.water} L</p>
-                  <p className="mt-3 text-sm leading-7 text-amber-900/70">A simple signal for resource efficiency at scale.</p>
-                </div>
-              </div>
-            </div>
-          </section>
+        {/* Combined: Testimonials (top 50%) + Recipes (bottom 50%) — free scroll */}
+        <section className="flex min-h-screen w-full flex-col">
 
-          <section id="story" className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
-            <div className="rounded-[2rem] border border-white/60 bg-white/75 p-8 shadow-[0_24px_80px_rgba(74,93,61,0.1)] backdrop-blur lg:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">About Nutri-Win</p>
-              <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">
-                The story starts with a simple question: what if everyday nutrition felt both credible and aspirational?
-              </h2>
-              <div className="mt-8 space-y-4 text-base leading-8 text-stone-600">
-                {storyPoints.map((point) => (
-                  <div key={point} className="flex gap-4 rounded-[1.5rem] bg-stone-50 p-5">
-                    <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                      <BadgeCheck className="h-4 w-4" />
-                    </div>
-                    <p>{point}</p>
+          {/* Top half: Testimonials */}
+          <div className="relative flex h-[50svh] w-full items-center justify-center overflow-hidden bg-[#e7f4e8] px-8 sm:px-12 lg:px-16">
+            <div className="wave" />
+            <div className="wave-bottom" />
+            <div className="slider-wrapper relative z-10 w-full p-7 sm:p-10">
+              <div key={activeQuote} className="testimonial-slide-motion grid grid-cols-[auto_1fr] items-center gap-9 min-h-45">
+                <div className="flex shrink-0 flex-col items-center gap-3 text-center">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#6ea875] shadow-[0_14px_30px_rgba(46,106,61,0.28)] sm:h-28 sm:w-28">
+                    <Image src={activeReview.image} alt={activeReview.name} fill className="object-cover" sizes="96px" />
                   </div>
+                  <div>
+                    <p className="display-face text-sm text-[#2c6c3a]">{activeReview.role}</p>
+                    <p className="display-face mt-1 text-xl text-[#1b3f26] sm:text-2xl">{activeReview.name}</p>
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <p className="display-face text-sm tracking-[0.12em] text-[#2f7a3d] sm:text-base">Customer Experience</p>
+                  <p className="mt-3 text-2xl font-semibold leading-9 text-[#1f2f22] text-pretty sm:text-3xl sm:leading-10">{activeReview.quote}</p>
+                </div>
+              </div>
+              <button type="button" onClick={showPrevQuote} aria-label="View previous quote" className="absolute left-2 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#8fbe96] bg-[#f3fbf4] text-[#1f5a2e] transition hover:bg-[#d9f0dd] sm:left-3">
+                <span className="text-xl leading-none">‹</span>
+              </button>
+              <button type="button" onClick={showNextQuote} aria-label="View next quote" className="absolute right-2 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#8fbe96] bg-[#f3fbf4] text-[#1f5a2e] transition hover:bg-[#d9f0dd] sm:right-3">
+                <span className="text-xl leading-none">›</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom half: Recipes */}
+          <div className="flex h-[50svh] w-full items-center bg-white px-8 sm:px-12 lg:px-16">
+            <div className="w-full">
+              <h2
+                data-title-reveal
+                className="title-reveal display-face text-2xl text-neutral-950 sm:text-3xl"
+              >
+                Recipes For You And Your Heart.
+              </h2>
+              <div className="mt-5 grid grid-cols-3 gap-5">
+                {recipes.map((recipe, index) => (
+                  <article
+                    key={recipe.title}
+                    data-title-reveal
+                    className="reel-card card-reveal"
+                    style={{ transitionDelay: `${index * 140 + 120}ms` }}
+                  >
+                    <div
+                      className="reel-media h-[28svh] w-full bg-cover bg-center"
+                      style={{ backgroundImage: `url('${recipe.image}')` }}
+                    />
+                    <div className="reel-top-ui">
+                      <span className="reel-pill">REEL</span>
+                      <span className="reel-pill">{recipe.duration}</span>
+                    </div>
+                    <div className="reel-bottom-ui">
+                      <p className="display-face reel-title">{recipe.title}</p>
+                      <p className="reel-subtitle">#{recipe.tag}</p>
+                      <p className="reel-metrics">{recipe.views} views  ·  {recipe.likes} likes</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-center">
+                <a
+                  href="/our-mission"
+                  className="inline-block rounded-sm border-2 border-[#4c8c51] bg-[#4c8c51] px-10 py-4 text-base font-semibold uppercase tracking-widest text-white! transition-all duration-200 hover:bg-white hover:text-[#4c8c51]! active:scale-95"
+                >
+                  See More Recipes
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        {/* What Makes Nutri-Win Better — Banza-style sticky scroll */}
+        <section ref={whyRef} className="relative" style={{ height: '240vh' }}>
+          <div
+            ref={whyPanelRef}
+            className="h-screen overflow-hidden bg-[#1a3a1e]"
+            style={{ position: 'absolute', top: 0, left: 0, right: 0 }}
+          >
+
+            {/* Floating product packaging */}
+            <div className="pointer-events-none absolute inset-0 z-0">
+              {[
+                { top: '6%',  left: '4%',  size: 120, dur: '6s',  delay: '0s'   },
+                { top: '10%', left: '78%', size: 135, dur: '8s',  delay: '1s'   },
+                { top: '3%',  left: '48%', size: 110, dur: '7s',  delay: '2s'   },
+                { top: '55%', left: '2%',  size: 128, dur: '9s',  delay: '0.5s' },
+                { top: '60%', left: '85%', size: 115, dur: '6s',  delay: '1.5s' },
+                { top: '72%', left: '40%', size: 122, dur: '8s',  delay: '3s'   },
+                { top: '80%', left: '15%', size: 110, dur: '7s',  delay: '0.8s' },
+                { top: '78%', left: '68%', size: 132, dur: '9s',  delay: '2.5s' },
+                { top: '30%', left: '90%', size: 118, dur: '6s',  delay: '0.3s' },
+                { top: '35%', left: '12%', size: 112, dur: '8s',  delay: '1.8s' },
+              ].map((p, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src="/imgs/product_png.png"
+                  alt=""
+                  className="product-particle"
+                  style={{
+                    top: p.top,
+                    left: p.left,
+                    width: p.size,
+                    animationDuration: p.dur,
+                    animationDelay: p.delay,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 flex h-full flex-col items-center px-6 pt-20 sm:pt-24">
+
+              {/* Heading — always visible */}
+              <div className="text-center">
+                <p className="display-face text-[10px] tracking-[0.32em] text-[#7fbc83] sm:text-xs">THE NUTRI-WIN DIFFERENCE</p>
+                <h2 className="display-face mt-3 text-5xl leading-tight text-white sm:text-6xl lg:text-7xl">
+                  What makes<br />Nutri-Win better?
+                </h2>
+              </div>
+
+              {/* Three items */}
+              <div className="mt-16 grid w-full max-w-4xl grid-cols-1 gap-12 sm:mt-20 sm:grid-cols-3 sm:gap-8">
+
+                <div ref={whyItem1Ref} className="text-center" style={{ opacity: 0, transform: 'translateY(90px)' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(127,188,131,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', flexShrink: 0 }}>
+                    <Wheat className="h-7 w-7 text-[#7fbc83]" strokeWidth={1.6} />
+                  </div>
+                  <p className="display-face text-[10px] tracking-[0.28em] text-[#7fbc83]">MADE FROM</p>
+                  <p className="display-face mt-3 text-3xl leading-tight text-white sm:text-4xl">WHOLE<br />GRAIN</p>
+                  <div className="mx-auto mt-4 h-px w-10 bg-[#7fbc83]" />
+                  <p className="mt-4 text-sm leading-7 text-white/70">Better for your health. Better for families. Better for the earth.</p>
+                </div>
+
+                <div ref={whyItem2Ref} className="text-center" style={{ opacity: 0, transform: 'translateY(90px)' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(127,188,131,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', flexShrink: 0 }}>
+                    <Sparkles className="h-7 w-7 text-[#7fbc83]" strokeWidth={1.6} />
+                  </div>
+                  <p className="display-face text-[10px] tracking-[0.28em] text-[#7fbc83]">FULL OF</p>
+                  <p className="display-face mt-3 text-3xl leading-tight text-white sm:text-4xl">THE GOOD<br />STUFF</p>
+                  <div className="mx-auto mt-4 h-px w-10 bg-[#7fbc83]" />
+                  <p className="mt-4 text-sm leading-7 text-white/70">27g protein. 14g fiber. 12 essential vitamins. All in one serving.</p>
+                </div>
+
+                <div ref={whyItem3Ref} className="text-center" style={{ opacity: 0, transform: 'translateY(90px)' }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(127,188,131,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', flexShrink: 0 }}>
+                    <Users className="h-7 w-7 text-[#7fbc83]" strokeWidth={1.6} />
+                  </div>
+                  <p className="display-face text-[10px] tracking-[0.28em] text-[#7fbc83]">TRUSTED BY</p>
+                  <p className="display-face mt-3 text-3xl leading-tight text-white sm:text-4xl">THOUSANDS<br />OF FAMILIES</p>
+                  <div className="mx-auto mt-4 h-px w-10 bg-[#7fbc83]" />
+                  <p className="mt-4 text-sm leading-7 text-white/70">10,000 families across 90 partner regions — and the number keeps growing.</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SDG + Pillars — free scroll */}
+        <section className="bg-neutral-100 py-24 sm:py-28">
+          <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="display-face text-xs tracking-[0.24em] text-[#4c8c51]">OUR THREE KEY SDGS</p>
+                <h2
+                  data-title-reveal
+                  className="title-reveal display-face mt-4 max-w-3xl text-4xl leading-tight text-neutral-950 sm:text-5xl"
+                >
+                  Built around hunger, health, and economic growth.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-base leading-8 text-neutral-700 sm:text-lg">
+                Backed by 22 years of research and development, Nutri-Win works to end malnutrition and protein deficiency while creating better outcomes for families, farmers, and local economies.
+              </p>
+            </div>
+            <div className="mt-12 grid gap-10 md:grid-cols-3">
+              {sdgCards.map((card, index) => (
+                <article key={card.title} className="relative">
+                  <div className="absolute -left-2 top-10 h-16 w-16 rounded-full bg-[#4c8c51]/10 blur-xl" />
+                  <div className="relative flex items-start gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1f5d32] text-[#dff4e2] shadow-[0_10px_24px_rgba(31,93,50,0.28)]">
+                      {index === 0 && (
+                        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+                          <path d="M4 17h16" />
+                          <path d="M7 17v-4.6c0-.6.5-1.1 1.1-1.1h7.8c.6 0 1.1.5 1.1 1.1V17" />
+                          <path d="M9.2 11.3 10.6 7h2.8l1.4 4.3" />
+                        </svg>
+                      )}
+                      {index === 1 && (
+                        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+                          <path d="M12 20s-6.5-3.7-6.5-9A3.6 3.6 0 0 1 12 8.6 3.6 3.6 0 0 1 18.5 11c0 5.3-6.5 9-6.5 9Z" />
+                          <path d="M9.4 12h5.2" />
+                          <path d="M12 9.4v5.2" />
+                        </svg>
+                      )}
+                      {index === 2 && (
+                        <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
+                          <path d="M5 16.5 10 11l3.2 3.4L19 8.5" />
+                          <path d="M16.2 8.5H19v2.8" />
+                          <path d="M4.5 19.5h15" />
+                        </svg>
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="display-face text-sm text-[#4c8c51]">0{index + 1}</p>
+                      <h3 className="display-face mt-1 text-2xl text-neutral-950">{card.title}</h3>
+                      <p className="mt-3 border-l-2 border-[#6fb27a] pl-4 text-base leading-8 text-neutral-700">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="relative mt-18 overflow-hidden border border-[#cfe6d1] bg-white p-6 sm:p-8 lg:p-10">
+              <div className="floating-tag floating-tag-1">Nutrition</div>
+              <div className="floating-tag floating-tag-2">Community</div>
+              <div className="floating-tag floating-tag-3">Impact</div>
+
+              <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="display-face text-xs tracking-[0.24em] text-[#4c8c51]">Explore Nutri-Win</p>
+                  <h3 className="display-face mt-3 max-w-3xl text-4xl leading-[0.95] text-neutral-950 sm:text-5xl">
+                    Story, mission, people, and vision.
+                  </h3>
+                </div>
+                <p className="max-w-2xl text-base leading-8 text-neutral-700 sm:text-lg">
+                  Quick paths into what matters most behind the brand.
+                </p>
+              </div>
+
+              <div className="relative z-10 mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {dropdownShowcase.map((item, index) => (
+                  <a
+                    key={item.title}
+                    href={item.href}
+                    data-title-reveal
+                    className="feature-tile card-reveal group"
+                    style={{ transitionDelay: `${index * 120 + 100}ms` }}
+                  >
+                    <div
+                      className="feature-tile-image"
+                      style={{
+                        backgroundImage: `linear-gradient(158deg,rgba(0,0,0,0.12),rgba(0,0,0,0.55)),url('${item.image}')`,
+                      }}
+                    />
+                    <div className="feature-tile-content">
+                      <span className="feature-tile-badge">{item.badge}</span>
+                      <h4 className="display-face mt-3 text-2xl text-white">{item.title}</h4>
+                      <p className="mt-3 text-sm leading-7 text-white/88">{item.description}</p>
+                      <p className="mt-4 display-face text-xs tracking-[0.18em] text-[#a6e4af]">Open Page →</p>
+                    </div>
+                  </a>
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+      </main>
 
-            <div className="rounded-[2rem] bg-[linear-gradient(180deg,_#fff7ea_0%,_#f3e2bc_100%)] p-8 shadow-[0_24px_80px_rgba(147,113,52,0.15)] lg:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-amber-700">Why it resonates</p>
-              <div className="mt-6 space-y-6">
-                <div className="rounded-[1.5rem] bg-white/80 p-6">
-                  <p className="text-xl font-semibold text-stone-900">Health that feels tangible</p>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">
-                    Nutri-Win focuses on benefits people can quickly understand: protein, fullness, ease, and better everyday choices.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] bg-white/80 p-6">
-                  <p className="text-xl font-semibold text-stone-900">Impact that can be explained fast</p>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">
-                    The product story translates sustainability into practical numbers, making the value proposition clearer for buyers and consumers.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] bg-white/80 p-6">
-                  <p className="text-xl font-semibold text-stone-900">A brand language with warmth</p>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">
-                    Soft curves, natural tones, and straightforward claims create a look that feels optimistic rather than clinical.
-                  </p>
-                </div>
+      <footer className="bg-[#0f2811]">
+        {/* Hero band — product image + big title */}
+        <div className="grid min-h-80 md:grid-cols-2">
+          <div
+            className="relative min-h-64 bg-cover bg-center md:min-h-0"
+            style={{ backgroundImage: "url('/imgs/product_png.png')", backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundColor: '#1a3a1e' }}
+          />
+          <div className="flex items-center bg-[#1a3a1e] px-8 py-12 sm:px-12 lg:px-16">
+            <h2 className="display-face text-7xl leading-none text-white sm:text-8xl lg:text-9xl">
+              NUTRI-WIN
+            </h2>
+          </div>
+        </div>
+
+        <div className="border-t border-white/8" />
+
+        {/* Main footer grid */}
+        <div className="mx-auto max-w-7xl px-6 pb-12 pt-16 lg:px-8">
+          <div className="grid grid-cols-2 gap-12 lg:grid-cols-4 lg:gap-8">
+
+            {/* Brand column */}
+            <div className="col-span-2 lg:col-span-1">
+              <p className="display-face text-2xl text-white">NUTRI-WIN</p>
+              <p className="mt-4 text-sm leading-7 text-white/80">
+                Indigenous foods, research, and community impact across West Africa — nourishing families for over 22 years.
+              </p>
+              <div className="mt-6 flex gap-3">
+                <a href="#" aria-label="Instagram" className="text-white/70 transition hover:text-[#7fbc83]">
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.057-1.645.069-4.849.069-3.205 0-3.584-.012-4.849-.069-3.259-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" /></svg>
+                </a>
+                <a href="#" aria-label="Facebook" className="text-white/70 transition hover:text-[#7fbc83]">
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                </a>
+                <a href="#" aria-label="X / Twitter" className="text-white/70 transition hover:text-[#7fbc83]">
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 002.856-3.44 9.86 9.86 0 01-2.836.776 4.958 4.958 0 002.165-2.724c-.951.564-2.005.974-3.127 1.195a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
+                </a>
+                <a href="#" aria-label="LinkedIn" className="text-white/70 transition hover:text-[#7fbc83]">
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.475-2.236-1.986-2.236-1.081 0-1.722.731-2.004 1.437-.103.25-.129.599-.129.948v5.42h-3.554s.047-8.733 0-9.646h3.554v1.364c.429-.662 1.196-1.604 2.906-1.604 2.121 0 3.71 1.388 3.71 4.37v5.516zM5.337 8.855c-1.144 0-1.915-.762-1.915-1.715 0-.959.768-1.718 1.959-1.718 1.14 0 1.914.759 1.942 1.718 0 .953-.802 1.715-1.986 1.715zm1.581 11.597H3.715V9.505h3.203v10.947zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" /></svg>
+                </a>
               </div>
             </div>
-          </section>
-        </main>
-      </div>
+
+            {/* Navigate */}
+            <div>
+              <p className="display-face text-xs tracking-[0.2em] text-[#7fbc83]">NAVIGATE</p>
+              <ul className="mt-5 space-y-3">
+                {[
+                  { label: 'Home', href: '/' },
+                  { label: 'Our Mission', href: '/our-mission' },
+                  { label: 'Our Farmers', href: '/our-farmers' },
+                  { label: 'Our Founder', href: '/founder' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="text-sm text-white/80 transition hover:text-white">{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <p className="display-face text-xs tracking-[0.2em] text-[#7fbc83]">COMPANY</p>
+              <ul className="mt-5 space-y-3">
+                {[
+                  { label: 'About Us', href: '#' },
+                  { label: 'Research & Impact', href: '#' },
+                  { label: 'SDG Commitments', href: '#' },
+                  { label: 'Press & Media', href: '#' },
+                  { label: 'Contact Us', href: '#' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="text-sm text-white/80 transition hover:text-white">{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <p className="display-face text-xs tracking-[0.2em] text-[#7fbc83]">JOIN THE MISSION</p>
+              <p className="mt-5 text-sm leading-6 text-white/80">Get updates on our impact, new recipes, and community stories.</p>
+              <form className="mt-5" onSubmit={(e) => e.preventDefault()}>
+                <div className="flex flex-col gap-2 sm:flex-row lg:flex-col xl:flex-row">
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    className="min-w-0 flex-1 rounded-sm border border-white/20 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/50 outline-none focus:border-[#7fbc83] focus:ring-0"
+                  />
+                  <button
+                    type="submit"
+                    className="display-face rounded-sm bg-[#7fbc83] px-5 py-2.5 text-xs tracking-widest text-[#0f2811] transition hover:bg-[#6aad72]"
+                  >
+                    SUBSCRIBE
+                  </button>
+                </div>
+              </form>
+              <p className="mt-6 text-sm text-white/80">
+                Want to partner with us?{' '}
+                <a href="#" className="text-[#7fbc83] underline underline-offset-2 transition hover:text-white">
+                  Get in touch
+                </a>
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-white/8">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-xs text-white/60 sm:flex-row lg:px-8">
+            <p>© 2025 Nutri-Win. All rights reserved.</p>
+            <div className="flex gap-6">
+              <a href="#" className="transition hover:text-white">Privacy Policy</a>
+              <a href="#" className="transition hover:text-white">Terms of Use</a>
+              <a href="#" className="transition hover:text-white">Cookie Settings</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
