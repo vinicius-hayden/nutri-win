@@ -1,5 +1,6 @@
 import { Archivo, Archivo_Black } from 'next/font/google'
 import './globals.css'
+import SiteFooter from '../src/components/SiteFooter'
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -21,7 +22,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${archivo.variable} ${archivoBlack.variable}`}>{children}</body>
+      <body className={`${archivo.variable} ${archivoBlack.variable}`}>
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   )
 }

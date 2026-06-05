@@ -1,4 +1,8 @@
-import { Heart, Sprout, UsersRound, UtensilsCrossed } from 'lucide-react'
+"use client"
+
+import Image from 'next/image'
+import { useEffect } from 'react'
+import { BadgeDollarSign, Heart, Sprout, UsersRound, UtensilsCrossed } from 'lucide-react'
 import SiteNav from '../../src/components/SiteNav'
 
 const reasons = [
@@ -26,55 +30,99 @@ const reasons = [
       'Created by Henrietta Okechukwu and inspired by Ephraem Okechukwu’s transformation, Nutri-Win shows how accessible nutrition can change lives.',
     Icon: Heart,
   },
+  {
+    title: 'Fair Wages, Fair Dignity',
+    description:
+      'In many agricultural systems across Africa, farmers are underpaid or paid late. Nutri-Win commits to fair pricing, reliable payments, and long-term relationships that respect farmers and their work.',
+    Icon: BadgeDollarSign,
+  },
 ]
 
 export default function OurMissionPage() {
+  useEffect(() => {
+    const nodes = document.querySelectorAll('[data-title-reveal], [data-card-reveal]')
+    if (!nodes.length) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      nodes.forEach((node) => node.classList.add('is-visible'))
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          entry.target.classList.add('is-visible')
+          currentObserver.unobserve(entry.target)
+        })
+      },
+      {
+        threshold: 0.22,
+        rootMargin: '0px 0px -8% 0px',
+      }
+    )
+
+    nodes.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="min-h-screen bg-white text-neutral-950">
       <div className="relative h-28 bg-white">
         <SiteNav theme="light" />
       </div>
-      <main className="pb-16">
-        <section id="about" className="mx-auto grid w-full max-w-7xl gap-0 px-4 pb-16 md:grid-cols-[1.25fr_0.75fr] md:px-6 lg:px-8">
-          <div className="bg-[#1c1c1c] px-8 py-12 text-white sm:px-12 sm:py-16">
-            <h1 className="display-face max-w-2xl text-4xl leading-tight sm:text-5xl">
-              We&apos;re On A Mission: Help Communities Win With Simple, Local, And Powerful Nutrition.
-            </h1>
-            <p className="mt-8 max-w-2xl text-base leading-8 text-neutral-300">
-              NUTRI-WIN brings together accessible ingredients, local supply chains, and measurable outcomes. Our model is built to improve nutrition where it matters most while creating opportunity across farming and distribution networks.
-            </p>
-          </div>
-          <div className="grid min-h-135 grid-rows-2">
-            <div
-              className="bg-cover bg-center"
-              style={{
-                backgroundImage:
-                  "url('/imgs/Nutri-Win_Mission.jpg')",
-              }}
-            />
-            <div
-              className="bg-cover bg-center"
-              style={{
-                backgroundImage:
-                  "url('/imgs/Nutri-Win_Impact.JPG')",
-              }}
-            />
+      <main>
+        <section className="w-full min-h-screen">
+          <div className="relative min-h-screen w-full overflow-hidden rounded-none bg-[#163422] text-white shadow-[0_20px_48px_rgba(12,12,12,0.24)]">
+            <div className="grid min-h-screen lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="relative z-10 flex flex-col justify-center px-7 py-10 sm:px-12 sm:py-16 lg:px-16 lg:py-18">
+                <p data-title-reveal className="title-reveal display-face text-xs tracking-[0.2em] text-[#bdeec2]">
+                  Our Mission
+                </p>
+                <h1
+                  data-title-reveal
+                  className="title-reveal display-face mt-4 max-w-4xl text-4xl leading-[0.95] sm:text-6xl lg:text-7xl"
+                >
+                  We&apos;re On A Mission: Help Communities Win With Simple, Local, And Powerful Nutrition.
+                </h1>
+                <p data-card-reveal className="card-reveal mt-7 max-w-3xl text-base leading-8 text-[#d2e9d5] sm:text-lg sm:leading-9">
+                  NUTRI-WIN brings together accessible ingredients, local supply chains, and measurable outcomes. Our model is built to improve nutrition where it matters most while creating opportunity across farming and distribution networks.
+                </p>
+              </div>
+
+              <div className="relative min-h-115 lg:min-h-full">
+                <Image
+                  src="/imgs/Nutri-Win_Mission.jpg"
+                  alt="Nutri-Win mission team"
+                  fill
+                  sizes="(min-width: 1024px) 45vw, 100vw"
+                  quality={95}
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="bg-[#f3f1ed] py-18 sm:py-22">
-          <div className="mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8">
-            <h2 className="display-face text-center text-4xl italic text-neutral-950 sm:text-5xl">
+        <section className="flex min-h-screen w-full items-center bg-white py-14">
+          <div className="mx-auto w-full px-6 md:px-10 lg:px-14">
+            <h2 data-title-reveal className="title-reveal display-face text-center text-5xl italic text-[#1f4d2f] sm:text-6xl">
               So, Why Nutri-Win?
             </h2>
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-14 grid gap-10 sm:grid-cols-2 xl:grid-cols-5">
               {reasons.map(({ title, description, Icon }) => (
-                <article key={title} className="flex flex-col items-center px-4 py-4 text-center">
-                  <div className="flex h-18 w-18 items-center justify-center rounded-full border border-neutral-300 text-neutral-900">
-                    <Icon className="h-8 w-8 stroke-[1.8]" />
+                <article
+                  key={title}
+                  data-card-reveal
+                  className="card-reveal flex flex-col items-center px-5 py-6 text-center"
+                >
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#89b594] text-[#1f4d2f]">
+                    <Icon className="h-9 w-9 stroke-[1.8]" />
                   </div>
-                  <h3 className="display-face mt-6 text-xl leading-tight text-neutral-950">{title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-neutral-700">{description}</p>
+                  <h3 className="display-face mt-6 text-2xl leading-tight text-[#1f4d2f]">{title}</h3>
+                  <p className="mt-4 text-base leading-8 text-[#2f5e3d]">{description}</p>
                 </article>
               ))}
             </div>
