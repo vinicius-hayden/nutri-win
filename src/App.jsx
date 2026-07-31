@@ -97,7 +97,9 @@ const fanReviews = [
 
 function App() {
   const [activeQuote, setActiveQuote] = useState(0)
+  const [isHeroVisible, setIsHeroVisible] = useState(true)
   const activeReview = fanReviews[activeQuote]
+  const heroRef = useRef(null)
   const productSectionRef = useRef(null)
   const hasLockedProductRef = useRef(false)
   const isScrollAnimatingRef = useRef(false)
@@ -113,6 +115,17 @@ function App() {
     }, 5000)
 
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHeroVisible(entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(hero)
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -287,15 +300,16 @@ function App() {
   }
 
   return (
-    <div className="w-full overflow-x-hidden bg-white text-neutral-950">
-      <section className="snap-start relative h-[85svh] overflow-hidden bg-[#101010] text-white">
+    <div className="w-full overflow-x-hidden bg-[#f5f0e8] text-neutral-950">
+      <section ref={heroRef} className="snap-start relative h-[85svh] overflow-hidden bg-[#101010] text-white">
         <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(0,0,0,0.28),rgba(0,0,0,0.12)),radial-gradient(circle_at_80%_20%,rgba(76,140,81,0.18),transparent_50%)]" />
         <div className="relative flex h-full w-full flex-col">
           <SiteNav theme="dark" />
           <div className="relative h-full w-full overflow-hidden bg-black">
             <iframe
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              src="https://www.youtube.com/embed/BnBvlz8EaZ0?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&rel=0"
+              className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-500"
+              style={{ opacity: isHeroVisible ? 1 : 0 }}
+              src="https://www.youtube.com/embed/2fQ4QBmQyCw?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&disablekb=1&iv_load_policy=3&fs=0&rel=0"
               title="Nutri-Win brand video"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
@@ -385,7 +399,7 @@ function App() {
               </div>
             </div>
 
-            <div className="relative min-h-screen bg-[#f4f6f2]">
+            <div className="relative min-h-screen bg-[#f5f0e8]">
               <div className="absolute inset-0 overflow-hidden">
                 <div
                   className="absolute inset-0 bg-cover bg-center"
@@ -412,23 +426,23 @@ function App() {
         <section className="flex min-h-screen w-full flex-col">
 
           {/* Top half: Testimonials */}
-          <div className="relative flex h-[50svh] w-full items-center justify-center overflow-hidden bg-[#e7f4e8] px-8 sm:px-12 lg:px-16">
+          <div className="relative flex w-full items-center justify-center overflow-hidden bg-[#e7f4e8] px-6 py-10 sm:h-[50svh] sm:px-12 sm:py-0 lg:px-16">
             <div className="wave" />
             <div className="wave-bottom" />
             <div className="slider-wrapper relative z-10 w-full p-7 sm:p-10">
-              <div key={activeQuote} className="testimonial-slide-motion grid grid-cols-[auto_1fr] items-center gap-9 min-h-45">
-                <div className="flex shrink-0 flex-col items-center gap-3 text-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#6ea875] shadow-[0_14px_30px_rgba(46,106,61,0.28)] sm:h-28 sm:w-28">
-                    <Image src={activeReview.image} alt={activeReview.name} fill className="object-cover" sizes="96px" />
+              <div key={activeQuote} className="testimonial-slide-motion flex flex-col gap-5 sm:grid sm:grid-cols-[auto_1fr] sm:items-center sm:gap-9 sm:min-h-45">
+                <div className="flex shrink-0 flex-row items-center gap-4 sm:flex-col sm:items-center sm:gap-3 sm:text-center">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-4 border-[#6ea875] shadow-[0_14px_30px_rgba(46,106,61,0.28)] sm:h-24 sm:w-24 lg:h-28 lg:w-28">
+                    <Image src={activeReview.image} alt={activeReview.name} fill className="object-cover" sizes="64px" />
                   </div>
-                  <div>
+                  <div className="text-left sm:text-center">
                     <p className="display-face text-sm text-[#2c6c3a]">{activeReview.role}</p>
-                    <p className="display-face mt-1 text-xl text-[#1b3f26] sm:text-2xl">{activeReview.name}</p>
+                    <p className="display-face mt-1 text-lg text-[#1b3f26] sm:text-xl lg:text-2xl">{activeReview.name}</p>
                   </div>
                 </div>
                 <div className="min-w-0">
                   <p className="display-face text-sm tracking-[0.12em] text-[#2f7a3d] sm:text-base">Customer Experience</p>
-                  <p className="mt-3 text-2xl font-semibold leading-9 text-[#1f2f22] text-pretty sm:text-3xl sm:leading-10">{activeReview.quote}</p>
+                  <p className="mt-3 text-base font-semibold leading-7 text-[#1f2f22] text-pretty sm:text-2xl sm:leading-9 lg:text-3xl lg:leading-10">{activeReview.quote}</p>
                 </div>
               </div>
               <button type="button" onClick={showPrevQuote} aria-label="View previous quote" className="absolute left-2 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#8fbe96] bg-[#f3fbf4] text-[#1f5a2e] transition hover:bg-[#d9f0dd] sm:left-3">
@@ -441,7 +455,7 @@ function App() {
           </div>
 
           {/* Bottom half: Recipes */}
-          <div className="flex h-[50svh] w-full items-center bg-white px-8 sm:px-12 lg:px-16">
+          <div className="flex w-full items-center bg-[#f5f0e8] px-6 py-10 sm:h-[50svh] sm:px-12 sm:py-0 lg:px-16">
             <div className="w-full">
               <h2
                 data-title-reveal
@@ -449,16 +463,16 @@ function App() {
               >
                 Recipes For You And Your Heart.
               </h2>
-              <div className="mt-5 grid grid-cols-3 gap-5">
+              <div className="mt-4 flex gap-3 overflow-x-auto pb-1 sm:mt-5 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:pb-0">
                 {recipes.map((recipe, index) => (
                   <article
                     key={recipe.title}
                     data-title-reveal
-                    className="reel-card card-reveal"
+                    className="reel-card card-reveal shrink-0 w-[62vw] sm:w-auto"
                     style={{ transitionDelay: `${index * 140 + 120}ms` }}
                   >
                     <div
-                      className="reel-media h-[28svh] w-full bg-cover bg-center"
+                      className="reel-media h-[40vw] w-full bg-cover bg-center sm:h-[28svh]"
                       style={{ backgroundImage: `url('${recipe.image}')` }}
                     />
                     <div className="reel-top-ui">
@@ -476,7 +490,7 @@ function App() {
               <div className="mt-6 flex justify-center">
                 <a
                   href="/recipes"
-                  className="inline-block rounded-sm border-2 border-[#4c8c51] bg-[#4c8c51] px-10 py-4 text-base font-semibold uppercase tracking-widest text-white! transition-all duration-200 hover:bg-white hover:text-[#4c8c51]! active:scale-95"
+                  className="inline-block rounded-sm border-2 border-[#4c8c51] bg-[#4c8c51] px-10 py-4 text-base font-semibold uppercase tracking-widest text-white! transition-all duration-200 hover:bg-[#f5f0e8] hover:text-[#4c8c51]! active:scale-95"
                 >
                   See More Recipes
                 </a>
@@ -575,8 +589,9 @@ function App() {
         </section>
 
         {/* SDG + Pillars — free scroll */}
-        <section className="bg-neutral-100 py-24 sm:py-28">
+        <section className="bg-[#f5f0e8] py-24 sm:py-28">
           <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="display-face text-xs tracking-[0.24em] text-[#4c8c51]">OUR THREE KEY SDGS</p>
@@ -587,9 +602,12 @@ function App() {
                   Built around hunger, health, and economic growth.
                 </h2>
               </div>
-              <p className="max-w-2xl text-base leading-8 text-neutral-700 sm:text-lg">
-                Backed by 22 years of research and development, Nutri-Win works to end malnutrition and protein deficiency while creating better outcomes for families, farmers, and local economies.
-              </p>
+              <div className="flex flex-col gap-3">
+                <Image src="/imgs/Main Logo.png" alt="Nutri-Win logo" width={220} height={80} className="object-contain" />
+                <p className="max-w-2xl text-base leading-8 text-neutral-700 sm:text-lg">
+                  Backed by 22 years of research and development, Nutri-Win works to end malnutrition and protein deficiency while creating better outcomes for families, farmers, and local economies.
+                </p>
+              </div>
             </div>
             <div className="mt-12 grid gap-10 md:grid-cols-3">
               {sdgCards.map((card, index) => (
@@ -631,7 +649,7 @@ function App() {
                 </article>
               ))}
             </div>
-            <div className="relative mt-18 overflow-hidden border border-[#cfe6d1] bg-white p-6 sm:p-8 lg:p-10">
+            <div className="relative mt-18 overflow-hidden border border-[#cfe6d1] bg-[#f5f0e8] p-6 sm:p-8 lg:p-10">
               <div className="floating-tag floating-tag-1">Nutrition</div>
               <div className="floating-tag floating-tag-2">Community</div>
               <div className="floating-tag floating-tag-3">Impact</div>

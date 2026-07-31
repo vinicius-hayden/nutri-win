@@ -167,15 +167,15 @@ export default function OurFarmersPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-neutral-950">
-      <div className="relative h-28 bg-white">
+    <div className="min-h-screen bg-[#f5f0e8] text-neutral-950">
+      <div className="relative h-28 bg-[#f5f0e8]">
         <SiteNav theme="light" />
       </div>
 
       <main className="pb-20">
         <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-6 lg:px-8">
           <div className="grid gap-0 overflow-hidden rounded-md border border-neutral-200 md:grid-cols-[1.05fr_0.95fr]">
-            <div className="relative bg-white px-6 py-10 sm:px-10 sm:py-12 lg:px-12">
+            <div className="relative bg-[#f5f0e8] px-6 py-10 sm:px-10 sm:py-12 lg:px-12">
               <div className="absolute -left-20 top-10 h-40 w-40 rounded-full border border-[#7fbc83]/30" />
               <p data-title-reveal className="title-reveal display-face relative z-10 text-xs tracking-[0.2em] text-[#4c8c51]">
                 Growers First
@@ -188,12 +188,12 @@ export default function OurFarmersPage() {
               </p>
 
               <div ref={statsRef} className="mt-10 grid max-w-xl gap-4 sm:grid-cols-2">
-                <div data-card-reveal className="card-reveal group border-2 border-neutral-200 bg-[#f7faf7] p-6 transition hover:-translate-y-1 hover:border-[#7fbc83]">
+                <div data-card-reveal className="card-reveal group border-2 border-neutral-200 bg-[#f5f0e8] p-6 transition hover:-translate-y-1 hover:border-[#7fbc83]">
                   <Leaf className="h-6 w-6 text-[#4c8c51] transition group-hover:rotate-6" />
                   <p className="display-face mt-2 text-5xl text-[#1f5a2e]">{`${Math.round(familiesReached / 1000)}K`}</p>
                   <p className="mt-1 text-sm uppercase tracking-[0.15em] text-neutral-600">Families Reached</p>
                 </div>
-                <div data-card-reveal className="card-reveal group border-2 border-neutral-200 bg-white p-6 transition hover:-translate-y-1 hover:border-[#7fbc83]" style={{ transitionDelay: '120ms' }}>
+                <div data-card-reveal className="card-reveal group border-2 border-neutral-200 bg-[#f5f0e8] p-6 transition hover:-translate-y-1 hover:border-[#7fbc83]" style={{ transitionDelay: '120ms' }}>
                   <Sparkles className="h-6 w-6 text-[#4c8c51] transition group-hover:scale-110" />
                   <p className="display-face mt-2 text-5xl text-neutral-900">{partnerRegions}</p>
                   <p className="mt-1 text-sm uppercase tracking-[0.15em] text-neutral-600">Partner Regions</p>
@@ -217,7 +217,7 @@ export default function OurFarmersPage() {
         </section>
 
         <section className="mx-auto w-full max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
-          <div className="grid gap-8 rounded-md border-2 border-neutral-200 bg-[#fcfdfb] p-7 sm:p-10 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid gap-8 rounded-md border-2 border-neutral-200 bg-[#f5f0e8] p-7 sm:p-10 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p data-title-reveal className="title-reveal display-face text-xs tracking-[0.2em] text-[#4c8c51]">Choose Your Lens</p>
               <h2 data-title-reveal className="title-reveal display-face mt-3 text-4xl leading-[0.92] sm:text-6xl">
@@ -234,7 +234,7 @@ export default function OurFarmersPage() {
                     type="button"
                     onClick={() => setActiveMode(index)}
                     onMouseEnter={() => setActiveMode(index)}
-                    className={`flex w-full items-center justify-between border-2 px-5 py-4 text-left transition ${activeMode === index ? 'border-[#4c8c51] bg-[#eaf6eb]' : 'border-neutral-300 bg-white hover:border-[#7fbc83]'}`}
+                    className={`flex w-full items-center justify-between border-2 px-5 py-4 text-left transition ${activeMode === index ? 'border-[#4c8c51] bg-[#eaf6eb]' : 'border-neutral-300 bg-[#f5f0e8] hover:border-[#7fbc83]'}`}
                   >
                     <span className="inline-flex items-center gap-3">
                       <item.Icon className={`h-6 w-6 ${activeMode === index ? 'text-[#1f5a2e]' : 'text-neutral-600'}`} />
@@ -246,7 +246,7 @@ export default function OurFarmersPage() {
               </div>
             </div>
 
-            <article data-card-reveal className="card-reveal relative overflow-hidden border-2 border-[#d5e8d7] bg-white p-7 sm:p-10">
+            <article data-card-reveal className="card-reveal relative overflow-hidden border-2 border-[#d5e8d7] bg-[#f5f0e8] p-7 sm:p-10">
               <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-[#7fbc83]/30" />
               <div className="flex items-start justify-between gap-5">
                 <div>
@@ -263,7 +263,7 @@ export default function OurFarmersPage() {
 
               <div className="mt-9 grid gap-3 sm:grid-cols-3">
                 {storyModes[activeMode].points.map((point) => (
-                  <div key={point} className="border-2 border-neutral-200 bg-[#fbfdfb] px-4 py-4 text-base text-neutral-700">
+                  <div key={point} className="border-2 border-neutral-200 bg-[#f5f0e8] px-4 py-4 text-base text-neutral-700">
                     {point}
                   </div>
                 ))}

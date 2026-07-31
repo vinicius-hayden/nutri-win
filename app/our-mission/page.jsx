@@ -68,8 +68,8 @@ export default function OurMissionPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-neutral-950">
-      <div className="relative h-28 bg-white">
+    <div className="min-h-screen bg-[#f5f0e8] text-neutral-950">
+      <div className="relative h-28 bg-[#f5f0e8]">
         <SiteNav theme="light" />
       </div>
       <main>
@@ -106,7 +106,7 @@ export default function OurMissionPage() {
           </div>
         </section>
 
-        <section className="flex min-h-screen w-full items-center bg-white py-14">
+        <section className="flex min-h-screen w-full items-center bg-[#f5f0e8] py-14">
           <div className="mx-auto w-full px-6 md:px-10 lg:px-14">
             <h2 data-title-reveal className="title-reveal display-face text-center text-5xl italic text-[#1f4d2f] sm:text-6xl">
               So, Why Nutri-Win?
